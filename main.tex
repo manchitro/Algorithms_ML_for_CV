@@ -1,0 +1,58 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\title{Algorithms}
+\author{Md. Sazid Uddin}
+\date{February 2023}
+
+\begin{document}
+
+\maketitle
+
+\section{Rule Based Model}
+Each image is a 3 dimensional tensor with $shape=[img\_height, img\_width, 3]$. Since each JPEG image has three channels (R,G,B), we have 3 values for each pixel.\par
+\subsection{The Fit Function}
+To fit out training data into the model, we call a function \(fit(img, label)\) passing in a training example which consists of the image, and its label. The label tells us which class the image belongs to.\par
+We calculate the mean of the sum of all pixel value from each channel as an array of 3 elements for each image and add the mean to the sum of means of the respective image. This way we store, for each class, the sum of average pixel value of each image.\par
+\begin{algorithm}
+\caption{The Fit Function}
+\begin{algorithmic}[1]
+\Procedure{fit}{$dataset$}\Comment{each $dataset$ entry has an $img$ and a $label$}
+\State $labels \gets [\ ]$
+\State $sum\_arr \gets [\ ]$
+\State $count\_arr \gets [\ ]$
+\For{each $class$}
+\State push $class.label$ into $labels$
+\State push [0,0,0] into $sum\_arr$
+\State push 0 into $count\_arr$
+\EndFor
+\For{each $img,label$}
+\State $avg \gets [\overline{\sum RED\ values},\overline{\sum GREEN\ values},\overline{\sum BLUE\ values}]$ 
+\State $sum\_arr[label] = sum\_arr[label] + avg$
+\State $count\_arr[label] = count\_arr[label] + 1$
+\EndFor
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+\subsection{The Predict Function}
+The Fit function prepared our model with data to predict any new images and classify them into one of the classes. To predict an image, we use the predict function.\par
+\begin{algorithm}
+\caption{The Predict Function}
+\begin{algorithmic}[1]
+\Procedure{predict}{$img$}
+\State $img\_avg \gets [\overline{\sum RED\ values},\overline{\sum GREEN\ values},\overline{\sum BLUE\ values}]$ 
+\For{each $class$}
+\State $class\_avg = (sum\_arr[class]\ /\ count\_arr[class])$
+\State $diff \gets \sum abs(img\_avg\ -\ class\_avg)$
+\If{$diff < best\_diff$}
+\State $best\_diff \gets diff$
+\State $best\_label \gets labels[class]$
+\EndIf
+\EndFor\\
+return $best\_label$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+The predict function, armed with the knowledge of how the average pixel values of each class looks like, compares them with the average pixel value of the supplied image and finds the closest class average and returns the label of that class. In other words, the function outputs a label of the class to which it thinks, the image belongs to, base on the average pixel value of the image.
+\end{document}
